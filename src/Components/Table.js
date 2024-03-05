@@ -11,9 +11,9 @@ function Table({ data, setData }) {
     const [editedUser, setEditedUser] = useState(null)
     const [isEditing, setIsEditing] = useState(false)
     const displayUsers=data.slice((currentPage - 1) * userPerPage, currentPage * userPerPage)
-    const totalPages = Math.ceil(data.length / userPerPage)
     const [searchQuery, setSearchQuery] = useState('')
     const [filteredData,setFilteredData]=useState([])
+    const totalPages = Math.ceil(data.length / userPerPage)
     const goToPage = (page) => {
         setCurrentPage(page);
     }
@@ -26,6 +26,7 @@ function Table({ data, setData }) {
         }
         return buttons
     }
+    
     const handleCheckboxChange = (userId) => {
         setSelectedUser((prevSelected) => {
             if (prevSelected.includes(userId)) {
@@ -70,12 +71,18 @@ function Table({ data, setData }) {
         setIsChecked(false)
     }
     useEffect(() => {
+      //  console.log("Search query output",searchQuery);
         const delaySearch = setTimeout(() => {
-            const filteredData = displayUsers.filter(user =>
-                user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                user.role.toLowerCase().includes(searchQuery.toLowerCase())
+            const filteredData =data.filter(user =>{
+                return(
+                    user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    user.role.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+            }
+                
             );
+            setCurrentPage(1)
             setFilteredData(filteredData)
            // console.log(filteredData,searchQuery)
         }, 500);
@@ -97,7 +104,7 @@ function Table({ data, setData }) {
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredData.map((user) => (
+                    {filteredData.slice((currentPage - 1) * userPerPage, currentPage * userPerPage).map((user) => (
                         <tr key={user.id}>
                             <td><input type="checkbox" checked={selectedUser.includes(user.id)} onChange={() => handleCheckboxChange(user.id)} /></td>
                             <td>{isEditing && editedUser?.id === user.id ? <input type="text" value={editedUser.name} onChange={(e) => setEditedUser({ ...editedUser, name: e.target.value })} /> : user.name}</td>
